@@ -12,11 +12,11 @@ services:
     image: atief/wordcounter
     build:
       context: ../../../
-      args:
-        PUBLIC_PATH: /
-        COUNT_DETAILS: 1
     profiles:
       - build
+    environment:
+      - PUBLIC_PATH=/
+      - COUNT_DETAILS=1
     volumes:
       - app:/app/build
     network_mode: bridge

@@ -22,10 +22,35 @@ const COUNT_DETAILS = process.env.COUNT_DETAILS === '1';
 /**
  * CONSTANTES FIXES
  */
+// Nom publique du worker pdf
 const WORKER_NAME = 'pdf-worker.min.js';
-
 // Constantes de simultation (utiles en mode dev uniquement)
 const SIMULATE_PDF_PROCESSOR = false;
+
+function printPreReport(prodMode, devMod) {
+  const texts = [
+    'START BUILD APP WITH GIVEN PARAMETERS',
+    `- PRODUCTION MODE: ${prodMode}`,
+    `- DEV MODE: ${devMod}`,
+    `- PUBLIC_PATH: ${PUBLIC_PATH}`,
+    `- COUNT_DETAILS: ${COUNT_DETAILS}`,
+    `- WORKER_NAME: ${WORKER_NAME}`,
+    `- SIMULATE_PDF_PROCESSOR: ${SIMULATE_PDF_PROCESSOR}`,
+  ];
+  // compute max line length and add 4 car (2 starts, 2 spaces)
+  const length = texts.map(t => t.length).reduce((a, b) => Math.max(a, b), 0);
+
+  // print line of start, text lines with their preffix and suffix then line of start
+  /* eslint-disable no-console */
+  console.log('\n');
+  console.log('*'.repeat(length + 4));
+  for (const text of texts) {
+    console.log(`* ${text}${' '.repeat(length - text.length)} *`);
+  }
+  console.log('*'.repeat(length + 4));
+  console.log('\n\n');
+  /* eslint-enable no-console */
+}
 
 // Fonctions utilitaire de création de partie de la configuration
 function createPluginConfiguration(productionMode = false) {
@@ -229,6 +254,7 @@ module.exports = (env, argv) => {
   const PRODUCTION_MODE = argv.mode === 'production';
   const DEV_MODE = argv.mode === 'development';
 
+  printPreReport(PRODUCTION_MODE, DEV_MODE);
   // Création de la configuration de base
   return {
     mode: 'development',
