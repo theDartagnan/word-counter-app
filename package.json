@@ -1,0 +1,68 @@
+{
+  "name": "word-counter-app",
+  "title": "Compteur de mots d'articles PDF",
+  "version": "1.0.0",
+  "description": "PDF Word counting for ATIEF reviewing process suport",
+  "main": "index.jsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --color ./src",
+    "start": "webpack serve --mode=development --config webpack.js",
+    "build-dev": "webpack --mode=development --config webpack.js --progress",
+    "build": "webpack --mode=production --config webpack.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:theDartagnan/word-counter-app.git"
+  },
+  "keywords": [
+    "pdf",
+    "word",
+    "count",
+    "atief"
+  ],
+  "author": "Rémi Venant",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "@babel/runtime": "^7.28.4",
+    "classnames": "^2.5.1",
+    "pdfjs-dist": "^5.4.394",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.9.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/eslint-parser": "^7.28.4",
+    "@babel/eslint-plugin": "^7.27.1",
+    "@babel/plugin-transform-runtime": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "@eslint/js": "^9.38.0",
+    "@stylistic/eslint-plugin": "^5.5.0",
+    "@tailwindcss/postcss": "^4.1.16",
+    "babel-loader": "^10.0.0",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "copy-webpack-plugin": "^13.0.1",
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.2",
+    "daisyui": "^5.5.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "favicons-webpack-plugin": "^6.0.1",
+    "html-webpack-plugin": "^5.6.4",
+    "html-webpack-tags-plugin": "^3.0.2",
+    "mini-css-extract-plugin": "^2.9.4",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.2.0",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.1.16",
+    "webpack": "^5.102.1",
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  }
+}
