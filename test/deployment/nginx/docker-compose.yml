@@ -2,6 +2,7 @@ name: 'wc-nginx-demo'
 
 # Build app: docker compose --profile build run --build --rm builder
 # run http: docker compose up -d
+# complete cleanup: docker compose --profile build down -v --rmi local && docker image rm atief/wordcounter
 
 configs:
   website:
