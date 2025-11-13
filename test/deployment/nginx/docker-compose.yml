@@ -1,0 +1,35 @@
+name: 'wc-nginx-demo'
+
+# Build app: docker compose --profile build run --build --rm builder
+# run http: docker compose up -d
+
+configs:
+  website:
+    file: configs/website.conf
+
+services:
+  builder:
+    image: atief/wordcounter
+    build:
+      context: ../../../
+      args:
+        PUBLIC_PATH: /
+        COUNT_DETAILS: 1
+    profiles:
+      - build
+    volumes:
+      - app:/app/build
+    network_mode: bridge
+  http:
+    image: nginx:1.28-alpine
+    restart: always
+    configs:
+      - source: website
+        target: /etc/nginx/conf.d/default.conf
+    volumes:
+      - app:/var/www:ro
+    ports:
+      - 127.0.0.1:8888:80
+
+volumes:
+  app:

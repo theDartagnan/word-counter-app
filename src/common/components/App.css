@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+main {
+  @apply box-border min-h-[90vh] 2xl:min-h-[93vh];
+}
+
+footer {
+  @apply box-border min-h-[10vh] 2xl:min-h-[7vh];
+}
+
+h1 {
+  @apply text-5xl font-bold;
+}
+
+h2 {
+  @apply text-5xl;
+}
+
+h3 {
+  @apply text-2xl font-bold;
+}
+
+h4 {
+  @apply text-2xl;
+}
+
+h4 {
+  @apply font-bold;
+}
