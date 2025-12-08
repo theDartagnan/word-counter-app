@@ -5,17 +5,10 @@ import FileProcessor from './FileProcessor';
 import TextProcessController from './services/TextProcessController';
 
 export default function WordCountingHome() {
-  const [txtProcess, setTxtProcess] = useState({
-    controller: null,
-    processing: false,
-  });
+  const [txtProcess] = useState(new TextProcessController());
 
   function startProcessing(file) {
-    const tpc = new TextProcessController(file);
-    setTxtProcess({ controller: tpc, processing: true });
-    tpc.start().finally(() => {
-      setTxtProcess(s => ({ ...s, processing: false }));
-    });
+    txtProcess.start(file);
   }
 
   return (
@@ -24,10 +17,8 @@ export default function WordCountingHome() {
         <AppPresentation />
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
-            <FileLoader onLoadFile={startProcessing} processingFile={txtProcess.processing} className="mb-3" />
-            {!!txtProcess.controller && (
-              <FileProcessor textProcessController={txtProcess.controller} />
-            )}
+            <FileLoader onLoadFile={startProcessing} textProcessController={txtProcess} className="mb-3" />
+            <FileProcessor textProcessController={txtProcess} />
           </div>
         </div>
       </div>

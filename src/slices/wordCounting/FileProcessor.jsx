@@ -9,6 +9,10 @@ import classNames from 'classnames';
 export default function FileProcessor({ textProcessController, className }) {
   const stats = useSyncExternalStore(lst => textProcessController.subscribe(lst), () => textProcessController.stats);
 
+  if (!stats) {
+    return null;
+  }
+
   return (
     <>
       {!!stats.processingError && (

@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import { useRef } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
 import { useFormStatus } from 'react-dom';
+import TextProcessController from './services/TextProcessController';
 
 function FileForm({ processingFile = false }) {
   const { pending } = useFormStatus();
@@ -27,7 +28,8 @@ FileForm.propTypes = {
   processingFile: PropTypes.bool,
 };
 
-export default function FileLoader({ onLoadFile, processingFile = false, className }) {
+export default function FileLoader({ onLoadFile, textProcessController, className }) {
+  const stats = useSyncExternalStore(lst => textProcessController.subscribe(lst), () => textProcessController.stats);
   const ref = useRef(null);
 
   async function onSubmitForm(formData) {
@@ -41,13 +43,13 @@ export default function FileLoader({ onLoadFile, processingFile = false, classNa
 
   return (
     <form ref={ref} action={onSubmitForm} className={classNames(className)}>
-      <FileForm processingFile={processingFile} />
+      <FileForm processingFile={stats?.processing} />
     </form>
   );
 }
 
 FileLoader.propTypes = {
   onLoadFile: PropTypes.func.isRequired,
-  processingFile: PropTypes.bool,
+  textProcessController: PropTypes.instanceOf(TextProcessController),
   className: PropTypes.string,
 };

@@ -40,4 +40,8 @@ export default class ProcessingStats {
   copy() {
     return Object.assign(new ProcessingStats(), this);
   }
+
+  static fromObject(obj) {
+    return Object.assign(new ProcessingStats(), obj);
+  }
 }

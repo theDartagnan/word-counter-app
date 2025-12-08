@@ -1,51 +1,41 @@
 import ProcessingStats from './ProcessingStats';
-import processFileData from './pdfTextProcessor';
 
 export default class TextProcessController {
-  #listeners = [];
-  #file;
-  #fileProcessingPromise;
-  #processingStats;
+  #listeners = new Set();
+  #worker = null;
+  #currentFile = null;
+  #processingStats = null;
 
-  constructor(file) {
-    this.#file = file;
-    this.#fileProcessingPromise = null;
-    this.#processingStats = new ProcessingStats();
+  constructor() {
   }
 
   get file() {
-    return this.#file;
+    return this.#currentFile;
   }
 
   get stats() {
     return this.#processingStats;
   }
 
-  async start() {
-    if (this.#fileProcessingPromise) {
-      return this.#fileProcessingPromise;
+  start(file) {
+    if (this.#processingStats?.processing) {
+      console.warn('Cannot start processing a new file, current file still in process');
+      return;
     }
-    this.#fileProcessingPromise = this.#internalStart();
-    return this.#fileProcessingPromise;
+    this.#currentFile = file;
+    this.#internalStart();
   }
 
   subscribe(listener) {
     // Add the listener if not present yet.
-    if (this.#listeners.findIndex(lst => lst === listener) < 0) {
-      this.#listeners.push(listener);
-    }
+    this.#listeners.add(listener);
     // Return the unsubscribe function call on listener
     // Explicit void on function return
     return void (() => this.unsubscribe(listener));
   }
 
   unsubscribe(listener) {
-    const lstIdx = this.#listeners.findIndex(lst => lst === listener);
-    if (lstIdx >= 0) {
-      this.#listeners.splice(lstIdx, 1);
-      return true;
-    }
-    return false;
+    this.#listeners.delete(listener);
   }
 
   onNewStats(stats) {
@@ -54,18 +44,28 @@ export default class TextProcessController {
   }
 
   async #internalStart() {
+    if (!this.#currentFile) {
+      console.warn('No file to process');
+      return;
+    }
+    this.#processingStats = new ProcessingStats();
     try {
-      this.#processingStats = new ProcessingStats();
+      // Load worker if not loaded yet
+      await this.#loadWorkerIfRequired();
+      // Prepare new stats and notify listeners
       this.#processingStats.processing = true;
       this.#notifyListenersNewStats();
-      const data = await this.#file.arrayBuffer();
-      return processFileData(data, this, APP_ENV_COUNT_DETAILS);
+      // Load file data and send them to worker
+      const data = await this.#currentFile.arrayBuffer();
+      this.#worker.postMessage({ data, countDetails: APP_ENV_COUNT_DETAILS });
     }
     catch (error) {
+      // Error happened while loading worker or file data
+      // Create new stats on error (copy required for listeners)
       this.#processingStats = this.#processingStats.copy();
+      this.#processingStats.processing = false;
       this.#processingStats.processingError = error;
       this.#notifyListenersNewStats();
-      return false;
     }
   }
 
@@ -73,5 +73,35 @@ export default class TextProcessController {
     for (const lst of this.#listeners) {
       lst();
     }
+  }
+
+  async #loadWorkerIfRequired() {
+    if (this.#worker) {
+      return this.#worker;
+    }
+    this.#worker = new Worker(
+      /* webpackChunkName: "WordCounterWK" */ new URL('./pdfTextProcessor.js', import.meta.url),
+      {
+        type: 'classic',
+        credentials: 'same-origin',
+        name: 'Word counting worker',
+      },
+    );
+    this.#worker.onerror = (error) => {
+      console.warn('Worker error', error);
+      // Error happened from worker side
+      // Create new stats on error (copy required for listeners)
+      this.#processingStats = this.#processingStats.copy();
+      this.#processingStats.processing = false;
+      this.#processingStats.processingError = error;
+      this.#notifyListenersNewStats();
+    };
+    this.#worker.onmessage = (msg) => {
+      // # Rebuild stats frow raw object
+      this.#processingStats = ProcessingStats.fromObject(msg.data);
+      // mise à jour
+      this.#notifyListenersNewStats();
+    };
+    return this.#worker;
   }
 }

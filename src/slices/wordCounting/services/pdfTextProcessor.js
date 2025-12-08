@@ -22,7 +22,7 @@ function getDocumentInitParameters(pdfData, verbose = false) {
   return options;
 }
 
-export default async function processFileData(fileData, textProcessController, countDetails = false, verbose = false) {
+export default async function processFileData(fileData, countDetails = false, verbose = false) {
   const log = verbose
     ? function () { console.log(...arguments); } // eslint-disable-line no-console
     : function () {};
@@ -30,7 +30,7 @@ export default async function processFileData(fileData, textProcessController, c
   const options = getDocumentInitParameters(fileData, verbose);
   // Open document
   log('Open PDF document...');
-  const textHandler = new WorkerTextHandler(stats => textProcessController.onNewStats(stats), countDetails);
+  const textHandler = new WorkerTextHandler(stats => self.postMessage(stats), countDetails);
   const document = await getDocument(options).promise;
   textHandler.startDocument(document.numPages);
   // Process all pages sequentially
@@ -47,3 +47,12 @@ export default async function processFileData(fileData, textProcessController, c
   textHandler.endDocument();
   return true;
 }
+
+function processMessage(msg) {
+  const { data, countDetails } = msg.data;
+  if (data) {
+    processFileData(data, countDetails, false);
+  }
+}
+
+self.onmessage = processMessage;
