@@ -7,13 +7,15 @@ export default function Footer() {
   return (
     <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content items-center p-3">
       <aside className="grid-flow-col items-center">
-        <img
-          src={atiefLogo}
-          width="84.6"
-          height="30"
-          className={classNames('bg-neutral-50', 'fill-current')}
-          alt="Logo ATIEF"
-        />
+        <a href="http://www.atief.fr" target="_blank" rel="noreferrer">
+          <img
+            src={atiefLogo}
+            width="84.6"
+            height="30"
+            className={classNames('bg-neutral-50', 'fill-current')}
+            alt="Logo ATIEF"
+          />
+        </a>
         <p>
           Copyright ©
           {' '}
