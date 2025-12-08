@@ -1,4 +1,5 @@
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf';
+import WorkerTextHandler from './WorkerTextHandler';
 
 // Init worker location
 GlobalWorkerOptions.workerSrc = `.${APP_ENV_APP_PUBLIC_PATH}${APP_ENV_WORKER_NAME}`;
@@ -21,7 +22,7 @@ function getDocumentInitParameters(pdfData, verbose = false) {
   return options;
 }
 
-export default async function processFileData(fileData, textProcessController, verbose = false) {
+export default async function processFileData(fileData, textProcessController, countDetails = false, verbose = false) {
   const log = verbose
     ? function () { console.log(...arguments); } // eslint-disable-line no-console
     : function () {};
@@ -29,19 +30,20 @@ export default async function processFileData(fileData, textProcessController, v
   const options = getDocumentInitParameters(fileData, verbose);
   // Open document
   log('Open PDF document...');
+  const textHandler = new WorkerTextHandler(stats => textProcessController.onNewStats(stats), countDetails);
   const document = await getDocument(options).promise;
-  textProcessController.onDocumentOpened(document.numPages);
+  textHandler.startDocument(document.numPages);
   // Process all pages sequentially
   for (let i = 1; i <= document.numPages; i += 1) {
     log(`Open page ${i}...`);
-    textProcessController.onPageProcessing(i);
+    textHandler.changePage(i);
     const page = await document.getPage(i);
     log(`Load content from page ${i}...`);
     const content = await page.getTextContent();
     for (const item of content.items) {
-      textProcessController.onText(item.str);
+      textHandler.handleItem(item);
     }
   }
-  textProcessController.onDocumentProcessed();
+  textHandler.endDocument();
   return true;
 }

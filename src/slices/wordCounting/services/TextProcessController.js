@@ -1,18 +1,6 @@
 import ProcessingStats from './ProcessingStats';
 import processFileData from './pdfTextProcessor';
 
-// This regex matches any sequence of non whitespace characters
-const COUNT_RAW_WORD_REGEX = /\S+/gu;
-
-// Matches any sequence of non whitespace characters that contains at least one unicode alphanumeric character
-// (avoid counting isolated punctuation for instance)
-const COUNT_ALPHANUM_WORD_REGEX = /(?=\S*[\p{L}\p{N}])\S+/gu;
-
-function countWords(text, regex) {
-  const matches = text.match(regex);
-  return matches ? matches.length : 0;
-}
-
 export default class TextProcessController {
   #listeners = [];
   #file;
@@ -37,7 +25,7 @@ export default class TextProcessController {
     if (this.#fileProcessingPromise) {
       return this.#fileProcessingPromise;
     }
-    this.#fileProcessingPromise = this._internalStart();
+    this.#fileProcessingPromise = this.#internalStart();
     return this.#fileProcessingPromise;
   }
 
@@ -60,52 +48,28 @@ export default class TextProcessController {
     return false;
   }
 
-  onDocumentOpened(numPages) {
-    this.#processingStats = this.#processingStats.copy();
-    this.#processingStats.fileOpened = true;
-    this.#processingStats.numPages = numPages;
-    this.#processingStats.currentProcessingPage = 0;
-    this._notifyListenersNewStats();
+  onNewStats(stats) {
+    this.#processingStats = stats.copy();
+    this.#notifyListenersNewStats();
   }
 
-  onPageProcessing(numPage) {
-    this.#processingStats = this.#processingStats.copy();
-    this.#processingStats.currentProcessingPage = numPage;
-    this._notifyListenersNewStats();
-  }
-
-  onDocumentProcessed() {
-    this.#processingStats = this.#processingStats.copy();
-    this.#processingStats.fileProcessed = true;
-    this._notifyListenersNewStats();
-  }
-
-  onText(text) {
-    this.#processingStats = this.#processingStats.copy();
-    this.#processingStats.alphaNumWordCount += countWords(text, COUNT_ALPHANUM_WORD_REGEX);
-    if (APP_ENV_COUNT_DETAILS) {
-      this.#processingStats.rawWordCount += countWords(text, COUNT_RAW_WORD_REGEX);
-    }
-    this._notifyListenersNewStats();
-  }
-
-  async _internalStart() {
+  async #internalStart() {
     try {
-      this.#processingStats = this.#processingStats.copy();
+      this.#processingStats = new ProcessingStats();
       this.#processingStats.processing = true;
-      this._notifyListenersNewStats();
+      this.#notifyListenersNewStats();
       const data = await this.#file.arrayBuffer();
-      return processFileData(data, this);
+      return processFileData(data, this, APP_ENV_COUNT_DETAILS);
     }
     catch (error) {
       this.#processingStats = this.#processingStats.copy();
       this.#processingStats.processingError = error;
-      this._notifyListenersNewStats();
+      this.#notifyListenersNewStats();
       return false;
     }
   }
 
-  _notifyListenersNewStats() {
+  #notifyListenersNewStats() {
     for (const lst of this.#listeners) {
       lst();
     }

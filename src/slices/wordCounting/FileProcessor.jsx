@@ -29,10 +29,13 @@ export default function FileProcessor({ textProcessController, className }) {
           className="mt-4 wrap-break-word"
           title={`Nombre de mots dans ${textProcessController.file?.name ? textProcessController.file.name : '<fichier inconnu>'}`}
           value={stats.alphaNumWordCount.toLocaleString()}
+          referencesFound={stats.referencesFound}
           extraInfos={APP_ENV_COUNT_DETAILS
             ? [
-                { key: 'V1', value: `Nb. mots V1 : ${stats.alphaNumWordCount.toLocaleString()}` },
-                { key: 'V2', value: `Nb. mots V2 : ${stats.rawWordCount.toLocaleString()}` },
+                { key: 'V1', value: `Nb. mots : ${stats.alphaNumWordCount.toLocaleString()}` },
+                { key: 'V2', value: `Nb. mots bruts : ${stats.rawWordCount.toLocaleString()}` },
+                { key: 'V3', value: `Nb. mots ref. incluses : ${stats.totalAlphaNumWordCount.toLocaleString()}` },
+                { key: 'V4', value: `Nb. mots bruts ref. incluses : ${stats.totalRawWordCount.toLocaleString()}` },
               ]
             : []}
           complete={stats.fileProcessed}

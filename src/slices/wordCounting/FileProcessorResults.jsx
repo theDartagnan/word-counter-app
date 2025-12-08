@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { useEffect, useRef } from 'react';
 
-export default function FileProcessorResults({ title, value, extraInfos = [],
+export default function FileProcessorResults({ title, value, referencesFound = false, extraInfos = [],
   complete = true, className }) {
   const resRef = useRef();
 
@@ -31,6 +31,9 @@ export default function FileProcessorResults({ title, value, extraInfos = [],
         <div className="stat">
           <div className="stat-title">{title}</div>
           <div className="stat-value">{value}</div>
+          {!!referencesFound && (
+            <div className="stat-desc">Références trouvées, exclues du compte.</div>
+          )}
           {!!extraInfos && extraInfos.map(({ key, value: infoValue }) => (
             <div key={key} className="stat-desc">{infoValue}</div>
           ))}
@@ -43,6 +46,7 @@ export default function FileProcessorResults({ title, value, extraInfos = [],
 FileProcessorResults.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.node.isRequired,
+  referencesFound: PropTypes.bool,
   extraInfos: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.node.isRequired,
     value: PropTypes.node.isRequired,

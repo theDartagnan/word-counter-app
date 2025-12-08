@@ -5,11 +5,36 @@ export default class ProcessingStats {
   currentProcessingPage = 0;
   fileProcessed = false;
   processingError = null;
-  rawWordCount = 0;
-  alphaNumWordCount = 0;
+
+  referencesFound = false;
+  alphaNumWordCount = 0; // number of unicode alpha-num words, before references
+  rawWordCount = 0; // raw word count, before references
+  totalAlphaNumWordCount = 0;
+  totalRawWordCount = 0;
 
   constructor() {
 
+  }
+
+  markReferenceFound() {
+    // In case we have several occurences of references, we update counters with total counter
+    this.alphaNumWordCount = this.totalAlphaNumWordCount;
+    this.rawWordCount = this.totalRawWordCount;
+    this.referencesFound = true;
+  }
+
+  incRawWordCount(count) {
+    this.totalRawWordCount += count;
+    if (!this.referencesFound) {
+      this.rawWordCount += count;
+    }
+  }
+
+  incAlphaNumWordCount(count) {
+    this.totalAlphaNumWordCount += count;
+    if (!this.referencesFound) {
+      this.alphaNumWordCount += count;
+    }
   }
 
   copy() {
