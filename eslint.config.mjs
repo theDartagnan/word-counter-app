@@ -59,6 +59,19 @@ export default defineConfig([
     },
   },
   {
+    name: 'Extra configuration for test',
+    files: ['**/*.test.{js,mjs,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+    rules: {
+      'no-unused-vars': 'warn',
+      'no-undef': 'warn',
+    },
+  },
+  {
     name: 'Eslint configuration for the configuration files',
     files: ['webpack.js', 'babel.config.js', 'postcss.config.js', 'tailwind.config.js'],
     languageOptions: { sourceType: 'module', globals: globals.node },
