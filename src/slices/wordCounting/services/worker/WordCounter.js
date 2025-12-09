@@ -1,20 +1,33 @@
-import ProcessingStats from './ProcessingStats';
+import WordCountingStats from '../WordCountingStats';
 
 // This regex matches any sequence of non whitespace characters
-const COUNT_RAW_WORD_REGEX = /\S+/gu;
+export const COUNT_RAW_WORD_REGEX = /\S+/gu;
 
 // Matches any sequence of non whitespace characters that contains at least one unicode alphanumeric character
 // (avoid counting isolated punctuation for instance)
-const COUNT_ALPHANUM_WORD_REGEX = /(?=\S*[\p{L}\p{N}])\S+/gu;
+export const COUNT_ALPHANUM_WORD_REGEX = /(?=\S*[\p{L}\p{N}])\S+/gu;
 
-const REFERENCE_TOKEN_REGEX = /\S*r[eéèëê]f[eéèëê]rences?\S*/gui;
+// Marqueur de référence : espaces, (optionnel: crochetPonctu* [lettre ou chiffre]+ crochetPonctu* espaces*)references?
+// espaces: \p{Z}
+// crochet, ponctu : \p{P}
+// lettre ou chiffre : [\p{L}\p{N}]
+// groupe présent optionnel (?:)?
+// references : r[eéèëê]f[eéèëê]rences?
+// complete \p{Z}* (?:[\p{L}\p{P}\p{N}]+\p{Z}*)? r[eéèëê]f[eéèëê]rences? (?:\p{Z}*\p{P}*)? \p{Z}*
+// const REFERENCE_TOKEN_REGEX = /\S*r[eéèëê]f[eéèëê]rences?\S*/gui;
+export const REFERENCE_TOKEN_REGEX = /^\p{Z}*(?:[\p{L}\p{P}\p{N}]+\p{Z}*)?r[eéèëê]f[eéèëê]rences?(?:\p{Z}*\p{P}+)?\p{Z}*$/guim;
 
-function countWords(text, regex) {
+export function countWords(text, regex) {
   const matches = text.match(regex);
   return matches ? matches.length : 0;
 }
 
-export default class WorkerTextHandler {
+export function isTextReferencesToken(text) {
+  const match = text.match(REFERENCE_TOKEN_REGEX);
+  return match?.length === 1;
+}
+
+export default class WordCounter {
   #texts; // array of pending texts to process
   #currentStats; // current stats structure
   #statsSender; // Stats consumer
@@ -28,7 +41,7 @@ export default class WorkerTextHandler {
   startDocument(numPages) {
     // Clear text and prepare en stats structure
     this.#texts = null;
-    this.#currentStats = new ProcessingStats();
+    this.#currentStats = new WordCountingStats();
     this.#currentStats.fileOpened = true;
     this.#currentStats.numPages = numPages;
     this.#currentStats.currentProcessingPage = 0;
@@ -81,7 +94,7 @@ export default class WorkerTextHandler {
       // joind texts with space
       const fullText = this.#texts.join('');
       // Attempt to find the reference token : must be alone in the fullText
-      if (this.#isTextReferencesToken(fullText)) {
+      if (isTextReferencesToken(fullText)) {
         // Set references found flag in stats
         this.#currentStats.markReferenceFound();
       }
@@ -93,11 +106,6 @@ export default class WorkerTextHandler {
         this.#statsSender(this.#currentStats);
       }
     }
-  }
-
-  #isTextReferencesToken(text) {
-    const match = text.match(REFERENCE_TOKEN_REGEX);
-    return match?.length && match[0].length === text.length;
   }
 
   #countTextWords(text) {

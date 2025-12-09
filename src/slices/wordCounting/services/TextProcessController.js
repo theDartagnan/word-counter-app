@@ -1,10 +1,10 @@
-import ProcessingStats from './ProcessingStats';
+import WordCountingStats from './WordCountingStats';
 
 export default class TextProcessController {
   #listeners = new Set();
   #worker = null;
   #currentFile = null;
-  #processingStats = null;
+  countingStats = null;
 
   constructor() {
   }
@@ -14,11 +14,11 @@ export default class TextProcessController {
   }
 
   get stats() {
-    return this.#processingStats;
+    return this.countingStats;
   }
 
   start(file) {
-    if (this.#processingStats?.processing) {
+    if (this.countingStats?.processing) {
       console.warn('Cannot start processing a new file, current file still in process');
       return;
     }
@@ -39,7 +39,7 @@ export default class TextProcessController {
   }
 
   onNewStats(stats) {
-    this.#processingStats = stats.copy();
+    this.countingStats = stats.copy();
     this.#notifyListenersNewStats();
   }
 
@@ -48,12 +48,12 @@ export default class TextProcessController {
       console.warn('No file to process');
       return;
     }
-    this.#processingStats = new ProcessingStats();
+    this.countingStats = new WordCountingStats();
     try {
       // Load worker if not loaded yet
       await this.#loadWorkerIfRequired();
       // Prepare new stats and notify listeners
-      this.#processingStats.processing = true;
+      this.countingStats.processing = true;
       this.#notifyListenersNewStats();
       // Load file data and send them to worker
       const data = await this.#currentFile.arrayBuffer();
@@ -62,9 +62,9 @@ export default class TextProcessController {
     catch (error) {
       // Error happened while loading worker or file data
       // Create new stats on error (copy required for listeners)
-      this.#processingStats = this.#processingStats.copy();
-      this.#processingStats.processing = false;
-      this.#processingStats.processingError = error;
+      this.countingStats = this.countingStats.copy();
+      this.countingStats.processing = false;
+      this.countingStats.processingError = error;
       this.#notifyListenersNewStats();
     }
   }
@@ -80,7 +80,7 @@ export default class TextProcessController {
       return this.#worker;
     }
     this.#worker = new Worker(
-      /* webpackChunkName: "WordCounterWK" */ new URL('./pdfTextProcessor.js', import.meta.url),
+      /* webpackChunkName: "WordCounterWK" */ new URL('./worker/PDFProcessingWorker.js', import.meta.url),
       {
         type: 'classic',
         credentials: 'same-origin',
@@ -91,14 +91,14 @@ export default class TextProcessController {
       console.warn('Worker error', error);
       // Error happened from worker side
       // Create new stats on error (copy required for listeners)
-      this.#processingStats = this.#processingStats.copy();
-      this.#processingStats.processing = false;
-      this.#processingStats.processingError = error;
+      this.countingStats = this.countingStats.copy();
+      this.countingStats.processing = false;
+      this.countingStats.processingError = error;
       this.#notifyListenersNewStats();
     };
     this.#worker.onmessage = (msg) => {
       // # Rebuild stats frow raw object
-      this.#processingStats = ProcessingStats.fromObject(msg.data);
+      this.countingStats = WordCountingStats.fromObject(msg.data);
       // mise à jour
       this.#notifyListenersNewStats();
     };

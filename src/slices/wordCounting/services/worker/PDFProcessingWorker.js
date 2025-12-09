@@ -1,5 +1,5 @@
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf';
-import WorkerTextHandler from './WorkerTextHandler';
+import WordCounter from './WordCounter';
 
 // Init worker location
 GlobalWorkerOptions.workerSrc = `.${APP_ENV_APP_PUBLIC_PATH}${APP_ENV_WORKER_NAME}`;
@@ -30,7 +30,7 @@ export default async function processFileData(fileData, countDetails = false, ve
   const options = getDocumentInitParameters(fileData, verbose);
   // Open document
   log('Open PDF document...');
-  const textHandler = new WorkerTextHandler(stats => self.postMessage(stats), countDetails);
+  const textHandler = new WordCounter(stats => self.postMessage(stats), countDetails);
   const document = await getDocument(options).promise;
   textHandler.startDocument(document.numPages);
   // Process all pages sequentially

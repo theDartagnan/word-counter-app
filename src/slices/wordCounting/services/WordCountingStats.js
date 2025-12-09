@@ -1,4 +1,4 @@
-export default class ProcessingStats {
+export default class WordCountingStats {
   processing = false;
   fileOpened = false;
   numPages = '?';
@@ -38,10 +38,10 @@ export default class ProcessingStats {
   }
 
   copy() {
-    return Object.assign(new ProcessingStats(), this);
+    return Object.assign(new WordCountingStats(), this);
   }
 
   static fromObject(obj) {
-    return Object.assign(new ProcessingStats(), obj);
+    return Object.assign(new WordCountingStats(), obj);
   }
 }
