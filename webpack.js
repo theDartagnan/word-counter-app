@@ -127,6 +127,7 @@ function createPluginConfiguration(productionMode = false) {
         reportFilename: '../build-report/report.html',
         generateStatsFile: true,
         statsFilename: '../build-report/stats.json',
+        openAnalyzer: false,
       }),
     );
   }
