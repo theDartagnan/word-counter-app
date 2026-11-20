@@ -12,6 +12,8 @@ test('Reference token regex matches good references titles', () => {
     'A) Références',
     'A.B) Références',
     '[1.4] Références',
+    'R´ef´erences',
+    'A) R´ef´erences',
   ];
 
   const idxTextMatching = goodTexts

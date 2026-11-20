@@ -7,6 +7,9 @@ export default class WordCountingStats {
   processingError = null;
 
   referencesFound = false;
+  referencesPageNumber = 0;
+  referencesText = null;
+
   alphaNumWordCount = 0; // number of unicode alpha-num words, before references
   rawWordCount = 0; // raw word count, before references
   glyphCount = 0; // number of glyph, spaces counted
@@ -18,11 +21,13 @@ export default class WordCountingStats {
 
   }
 
-  markReferenceFound() {
+  markReferenceFound(text) {
     // In case we have several occurences of references, we update counters with total counter
     this.alphaNumWordCount = this.totalAlphaNumWordCount;
     this.rawWordCount = this.totalRawWordCount;
     this.referencesFound = true;
+    this.referencesText = text;
+    this.referencesPageNumber = this.currentProcessingPage;
   }
 
   incRawWordCount(count) {

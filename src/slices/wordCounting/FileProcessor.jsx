@@ -22,6 +22,10 @@ export default function FileProcessor({ textProcessController, className }) {
         steps={[
           { key: 'open', step: 'Ouverture du fichier PDF...', done: true },
           { key: 'page', step: `Page traitée : ${stats.currentProcessingPage} / ${stats.numPages}...`, done: stats.currentProcessingPage > 0 },
+          { key: 'referencesFound', step: stats.referencesFound
+            ? `Marqueur de références trouvé page ${stats.referencesPageNumber} !`
+            : 'Aucun marqueur de références trouvé.',
+          done: stats.referencesFound },
           { key: 'finish', step: 'Fichier traité avec succès !', done: stats.fileProcessed },
         ]}
         currentPercent={stats.numPages > 0 ? (100 * stats.currentProcessingPage) / stats.numPages : 0}
@@ -31,9 +35,16 @@ export default function FileProcessor({ textProcessController, className }) {
       {!stats.processingError && (
         <FileProcessorResults
           className="mt-4 wrap-break-word"
-          title={`Nombre de mots dans ${textProcessController.file?.name ? textProcessController.file.name : '<fichier inconnu>'}`}
-          value={stats.alphaNumWordCount.toLocaleString()}
+          titles={[
+            `Nombre de mots dans ${textProcessController.file?.name ? textProcessController.file.name : '<fichier inconnu>'}`,
+            'Nombre de glyphes',
+          ]}
+          values={[
+            stats.alphaNumWordCount.toLocaleString(),
+            stats.glyphCount.toLocaleString()]}
           referencesFound={stats.referencesFound}
+          referencesText={stats.referencesText}
+          referencesPageNumber={stats.referencesPageNumber}
           extraInfos={APP_ENV_COUNT_DETAILS
             ? [
                 { key: 'V1', value: `Nb. mots : ${stats.alphaNumWordCount.toLocaleString()}` },

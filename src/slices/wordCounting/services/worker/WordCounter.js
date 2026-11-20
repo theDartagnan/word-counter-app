@@ -12,10 +12,16 @@ export const COUNT_ALPHANUM_WORD_REGEX = /(?=\S*[\p{L}\p{N}])\S+/gu;
 // crochet, ponctu : \p{P}
 // lettre ou chiffre : [\p{L}\p{N}]
 // groupe présent optionnel (?:)?
-// references : r[eéèëê]f[eéèëê]rences?
-// complete \p{Z}* (?:[\p{L}\p{P}\p{N}]+\p{Z}*)? r[eéèëê]f[eéèëê]rences? (?:\p{Z}*\p{P}*)? \p{Z}*
-// const REFERENCE_TOKEN_REGEX = /\S*r[eéèëê]f[eéèëê]rences?\S*/gui;
-export const REFERENCE_TOKEN_REGEX = /^\p{Z}*(?:[\p{L}\p{P}\p{N}]+\p{Z}*)?r[eéèëê]f[eéèëê]rences?(?:\p{Z}*\p{P}+)?\p{Z}*$/guim;
+// accent : (?:\p{Mn}|[`´^¨~])*
+// references : utilise la normalisation NFD pour toujours avoir le marquage des accent avant/apres la lettre
+//            r${ACCENT_REGEX}e${ACCENT_REGEX}f${ACCENT_REGEX}e${ACCENT_REGEX}rences?
+// Marqueur : u (unicode) i (caseless) m (multiline)
+const SPACES_REGEX = '\\p{Z}*';
+const REF_PREFIX_REGEX = `(?:[\\p{L}\\p{P}\\p{N}]+${SPACES_REGEX})?`;
+const REF_SUFFIX_REGEX = `(?:\\p{Z}*\\p{P}+)?`;
+const ACCENT_REGEX = '(?:\\p{Mn}|[`´^¨~])*';
+const REF_WORD_REGEX = `r${ACCENT_REGEX}e${ACCENT_REGEX}f${ACCENT_REGEX}e${ACCENT_REGEX}rences?`;
+export const REFERENCE_TOKEN_REGEX = new RegExp(`^${SPACES_REGEX}${REF_PREFIX_REGEX}${REF_WORD_REGEX}${REF_SUFFIX_REGEX}${SPACES_REGEX}$`, 'mui');
 
 export function countWords(text, regex) {
   const matches = text.match(regex);
@@ -23,8 +29,9 @@ export function countWords(text, regex) {
 }
 
 export function isTextReferencesToken(text) {
-  const match = text.match(REFERENCE_TOKEN_REGEX);
-  return match?.length === 1;
+  const textToTest = text.normalize('NFD');
+  const hasRef = REFERENCE_TOKEN_REGEX.test(textToTest);
+  return hasRef;
 }
 
 export default class WordCounter {
@@ -96,7 +103,7 @@ export default class WordCounter {
       // Attempt to find the reference token : must be alone in the fullText
       if (isTextReferencesToken(fullText)) {
         // Set references found flag in stats
-        this.#currentStats.markReferenceFound();
+        this.#currentStats.markReferenceFound(fullText);
       }
       // Count text words, including the ref token if any (for total counting)
       this.#countTextWords(fullText);
