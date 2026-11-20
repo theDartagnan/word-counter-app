@@ -264,7 +264,6 @@ module.exports = (env, argv) => {
       clean: true, // efface le contenu du dossier de sortie avant regénération
       // Copie directe de fichiers worker pdf et .htaccess
       copy: [
-        'static',
         { from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs', to: '', filename: WORKER_NAME },
         { from: 'htaccess_template', to: '', filename: '.htaccess' },
       ],
