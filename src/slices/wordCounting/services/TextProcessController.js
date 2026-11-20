@@ -80,7 +80,7 @@ export default class TextProcessController {
       return this.#worker;
     }
     this.#worker = new Worker(
-      /* webpackChunkName: "WordCounterWK" */ new URL('./worker/PDFProcessingWorker.js', import.meta.url),
+      /* webpackChunkName: "bundler-word-counter-worker" */ new URL('./worker/PDFProcessingWorker.js', import.meta.url),
       {
         type: 'classic',
         credentials: 'same-origin',

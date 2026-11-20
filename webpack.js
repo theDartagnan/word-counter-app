@@ -119,7 +119,7 @@ function createPluginConfiguration(productionMode = false) {
         reportFilename: '../build-report/report.html',
         generateStatsFile: true,
         statsFilename: '../build-report/stats.json',
-        openAnalyzer: false,
+        openAnalyzer: true,
       }),
     );
   }
@@ -200,10 +200,19 @@ function createProductionSpecificConfigurations(prodMode = false) {
       runtimeChunk: 'single', // Créer un seul runtime code pour l'ensemble des chunks
       splitChunks: { // Met à part les codes des biblio tierces
         cacheGroups: {
-          vendor: {
+          // 1. All node_modules used by main, privacy, or legal (including those also shared with wordcounter)
+          defaultVendors: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            chunks: 'all',
+            chunks: chunk => ['main', 'bundler-privacy', 'bundler-legal-notices'].includes(chunk.name),
+            priority: 20,
+          },
+          // 2. Remaining node_modules used ONLY by wordcounter worker
+          wordcounterVendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors-wordcounter',
+            chunks: chunk => chunk.name === 'bundler-word-counter-worker',
+            priority: 10,
           },
         },
       },
