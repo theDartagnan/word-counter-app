@@ -6,7 +6,6 @@ const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin'); // Plugin de copie directe de fichiers
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const {
   name, title, description, keywords, author,
@@ -61,13 +60,6 @@ function createPluginConfiguration(productionMode = false) {
       APP_ENV_APP_TITLE: JSON.stringify(title),
       APP_ENV_COUNT_DETAILS: JSON.stringify(COUNT_DETAILS),
       APP_ENV_WORKER_NAME: JSON.stringify(WORKER_NAME),
-    }),
-    // Copie directe de fichiers
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs', to: WORKER_NAME },
-        { from: 'htaccess_template', to: '.htaccess', toType: 'file' },
-      ],
     }),
     // Génération du fichier index.html à partir d'un template
     new HtmlWebpackPlugin({
@@ -270,6 +262,12 @@ module.exports = (env, argv) => {
       sourceMapFilename: PRODUCTION_MODE ? '[name].[contenthash].map' : '[name].map',
       publicPath: PUBLIC_PATH,
       clean: true, // efface le contenu du dossier de sortie avant regénération
+      // Copie directe de fichiers worker pdf et .htaccess
+      copy: [
+        'static',
+        { from: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs', to: '', filename: WORKER_NAME },
+        { from: 'htaccess_template', to: '', filename: '.htaccess' },
+      ],
     },
     // plugins de construction
     plugins: createPluginConfiguration(PRODUCTION_MODE),
