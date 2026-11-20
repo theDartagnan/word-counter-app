@@ -10,9 +10,10 @@ configs:
 
 services:
   builder:
-    image: atief/wordcounter
     build:
       context: ../../../
+      tags:
+        - atief/wordcounter
     profiles:
       - build
     environment:
@@ -22,7 +23,7 @@ services:
       - app:/app/build
     network_mode: bridge
   http:
-    image: nginx:1.28-alpine
+    image: nginx:stable-alpine
     restart: always
     configs:
       - source: website

@@ -1,0 +1,26 @@
+# Directories: we should copy only src/ folder!
+__mocks__/
+build/
+node_modules/
+simulation/
+test/
+
+# Docker & Git metadata
+.dockerignore
+.gitignore
+Dockerfile
+
+# Tooling & Linting configs
+eslint.config.js
+jest.config.js
+
+# Documentation
+README.md
+
+# At the end we should only copy:
+# src/
+# babel.config.js 
+# postcss.config.js 
+# webpack.js 
+# LICENSE 
+# htaccess_template
