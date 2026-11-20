@@ -9,8 +9,10 @@ export default class WordCountingStats {
   referencesFound = false;
   alphaNumWordCount = 0; // number of unicode alpha-num words, before references
   rawWordCount = 0; // raw word count, before references
+  glyphCount = 0; // number of glyph, spaces counted
   totalAlphaNumWordCount = 0;
   totalRawWordCount = 0;
+  totalGlyphCount = 0;
 
   constructor() {
 
@@ -34,6 +36,13 @@ export default class WordCountingStats {
     this.totalAlphaNumWordCount += count;
     if (!this.referencesFound) {
       this.alphaNumWordCount += count;
+    }
+  }
+
+  incGlyphCount(count) {
+    this.totalGlyphCount += count;
+    if (!this.referencesFound) {
+      this.glyphCount += count;
     }
   }
 

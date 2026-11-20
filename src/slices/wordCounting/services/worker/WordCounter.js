@@ -110,6 +110,7 @@ export default class WordCounter {
 
   #countTextWords(text) {
     let count = countWords(text, COUNT_ALPHANUM_WORD_REGEX);
+    this.#currentStats.incGlyphCount(text.length);
     this.#currentStats.incAlphaNumWordCount(count);
     if (this.#countDetails) {
       count = countWords(text, COUNT_RAW_WORD_REGEX);

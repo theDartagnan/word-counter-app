@@ -38,8 +38,10 @@ export default function FileProcessor({ textProcessController, className }) {
             ? [
                 { key: 'V1', value: `Nb. mots : ${stats.alphaNumWordCount.toLocaleString()}` },
                 { key: 'V2', value: `Nb. mots bruts : ${stats.rawWordCount.toLocaleString()}` },
+                { key: 'V5', value: `Nb. glyphes : ${stats.glyphCount.toLocaleString()}` },
                 { key: 'V3', value: `Nb. mots ref. incluses : ${stats.totalAlphaNumWordCount.toLocaleString()}` },
                 { key: 'V4', value: `Nb. mots bruts ref. incluses : ${stats.totalRawWordCount.toLocaleString()}` },
+                { key: 'V6', value: `Nb. glyphes  ref. incluses : ${stats.totalGlyphCount.toLocaleString()}` },
               ]
             : []}
           complete={stats.fileProcessed}
